@@ -6,6 +6,7 @@ import Producer from './stream/Producer';
 import Consumer from './stream/Consumer';
 import Conference from './conference/Conference';
 import App from './App';
+import React from 'react';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 

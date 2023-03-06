@@ -1,5 +1,5 @@
 import { iceConfig } from '../config/iceConfig';
-import { socket } from './socket';
+import { socket } from '../utils/socket';
 
 export const peer = new RTCPeerConnection(iceConfig as any);
 

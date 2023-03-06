@@ -3,10 +3,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { iceConfig } from '../config/iceConfig';
 import { socket } from '../utils/socket';
-import RTCFactory from '../utils/RTCFactory';
+import RTCFactory from '../modules/RTCPeer2Peer';
 import { createVideoElement } from '../utils/createVideoElement';
 import { removeVideoElement } from '../utils/removeVideoElement';
-import EventsManager from '../utils/EventsManager';
 
 export default function Host() {
 	const params = new URLSearchParams(window.location.search);
@@ -26,27 +25,27 @@ export default function Host() {
 
 	React.useEffect(() => {
 		// producer event: create room
-		rtc.addEventListener('createdRoom', (event: any) => {
-			rtc.log('createdRoom:', event.detail);
+		rtc.on('created', (event: any) => {
+			rtc.log('created:', event);
 			rtc.streamReady();
 		});
 		// consumer event: join room
-		rtc.addEventListener('joinedRoom', (event: any) => {
-			rtc.log('joinedRoom:', event.detail);
+		rtc.on('joined', (event: any) => {
+			rtc.log('joined:', event);
 			rtc.streamReady();
 		});
 		// stream event: add stream
-		rtc.addEventListener('newStream', (event: any) => {
-			rtc.log('newStream:', event);
-			createVideoElement({ id: event.detail.id, stream: event.detail.stream });
+		rtc.on('stream', (event: any) => {
+			rtc.log('stream:', event);
+			createVideoElement({ id: event.id, stream: event.stream });
 		});
 		// stream event: remove stream
-		rtc.addEventListener('removeStream', (event: any) => {
-			rtc.log('removeStream:', event);
-			removeVideoElement({ id: event.detail.id });
+		rtc.on('leave', (event: any) => {
+			rtc.log('leave:', event);
+			removeVideoElement({ id: event.id });
 		});
 
-		rtc.addEventListener('error', (event: any) => {
+		rtc.on('error', (event: any) => {
 			rtc.log('Error:', event);
 		});
 

@@ -1,3 +1,4 @@
 {
-	"liveServer.settings.multiRootWorkspaceName": "react-video-chat"
+	"liveServer.settings.multiRootWorkspaceName": "react-video-chat",
+	"typescript.tsdk": "node_modules/typescript/lib"
 }

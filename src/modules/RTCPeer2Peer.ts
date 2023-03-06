@@ -1,35 +1,32 @@
-import { removeVideoElement } from './removeVideoElement';
-import { Socket } from 'socket.io-client';
+// import { Socket } from 'socket.io-client';
 import { IceConfig } from '../config/iceConfig';
-import EventsManager from './EventsManager';
-import { IPeers, IStreams, ILogs, ICallback, IEventData } from '../types/RTCFactory.types';
+import { IPeers, IStreams, ILogs } from '../types/RTCFactory.types';
+import EventEmitter from 'eventemitter3';
+import { removeVideoElement } from '../utils/removeVideoElement';
 
-class RTCFactory extends EventTarget {
-	private socketEvents: EventsManager;
+class RTCPeer2Peer extends EventEmitter {
 	private peers: IPeers = {};
 	private streams: IStreams;
 	private _localStream: MediaStream | undefined;
 	private _myId: string | undefined;
-	private eventsDataById: Map<string, IEventData[]>;
 	private _isAdmin: boolean | undefined;
 	log: ILogs['log'];
 	warn: ILogs['warn'];
 	error: ILogs['error'];
 	user: { name?: string };
 	room: string | undefined;
-	socket: Socket;
+	socket: any;
 	pcConfig: IceConfig;
 	connectReady: boolean;
 	isOriginator: boolean;
 	inCall: boolean;
-	static removeAllEventListeners: (targetNode: any, event: any) => void;
 
 	constructor({
 		socket,
 		pcConfig,
 		logging = { log: true, warn: true, error: true }
 	}: {
-		socket: Socket;
+		socket: any;
 		pcConfig: IceConfig;
 		logging: { log?: boolean; warn?: boolean; error?: boolean };
 	}) {
@@ -44,8 +41,6 @@ class RTCFactory extends EventTarget {
 		this.isOriginator = false;
 		this.connectReady = false;
 		this.inCall = false;
-		this.socketEvents = new EventsManager(socket);
-		this.eventsDataById = new Map();
 
 		// setup socket listeners
 		this._establishSocketListeners();
@@ -58,47 +53,6 @@ class RTCFactory extends EventTarget {
 			this.user.name = name;
 			return (this._localStream = stream);
 		});
-	}
-
-	on(eventId: string, callback: ICallback, context?: unknown, isOnce?: boolean) {
-		let eventsData = this.eventsDataById.get(eventId);
-		if (!eventsData) {
-			eventsData = [];
-			this.eventsDataById.set(eventId, eventsData);
-		}
-
-		const eventData: IEventData = {
-			boundCallback: this._eventCallback.bind(this, eventId),
-			userCallback: callback,
-			id: eventId,
-			context,
-			isOnce
-		};
-
-		eventsData.push(eventData);
-
-		this.socket.on(eventId, eventData.boundCallback);
-	}
-
-	private _eventCallback(eventId: string, ...args: unknown[]): void {
-		const eventsData = this.eventsDataById.get(eventId) as any;
-		console.log('RTC -> callback event!', { eventId, eventsData });
-
-		let length = eventsData.length;
-		let index = 0;
-
-		while (index < length) {
-			const eventData = eventsData[index];
-			console.log('socket callback', { eventData });
-			if (eventData.isOnce) {
-				eventsData.splice(index, 1);
-				length--;
-			} else {
-				index++;
-			}
-
-			eventData.userCallback.call(eventData.context, ...args, this);
-		}
 	}
 
 	// establish socket listeners
@@ -139,19 +93,19 @@ class RTCFactory extends EventTarget {
 			this._isAdmin = true;
 
 			this.log('Created room:', { event });
-			this._emit('createdRoom', event);
+			this.emit('created', event);
 		},
 		joined: (event: { id: string | undefined; room: string | undefined }) => {
 			this._myId = event.id;
 			this.room = event.room;
 			this.connectReady = true;
 			this.log('Joined room:', { event });
-			this._emit('joinedRoom', event);
+			this.emit('joined', event);
 		},
 		join: () => {
 			this.connectReady = true;
 
-			this.dispatchEvent(new Event('newJoin'));
+			this.emit('newJoin', { newJoin: true });
 		},
 		message: (event: {
 			id: any;
@@ -167,7 +121,7 @@ class RTCFactory extends EventTarget {
 				this._removePeer(socketId);
 				this.isOriginator = true;
 
-				this._emit('userLeave', { id: socketId });
+				this.emit('userLeave', { id: socketId });
 				return;
 			}
 
@@ -199,7 +153,7 @@ class RTCFactory extends EventTarget {
 					return;
 				case 'candidate':
 					if (!event?.candidate) {
-						return this.warn('Failed to addIceCandidate');
+						return this.error('Client is missing event candidate.');
 					}
 					this.inCall = true;
 					const candidate = new RTCIceCandidate(event.candidate);
@@ -258,11 +212,11 @@ class RTCFactory extends EventTarget {
 			if (this.streams[socketId]?.id !== event.streams[0].id) {
 				this.streams[socketId] = event.streams[0];
 
-				this._emit('newStream', {
+				this.emit('stream', {
 					id: socketId,
 					stream: event.streams[0]
 				});
-				this.socket.emit('newStream', {
+				this.socket.emit('stream', {
 					id: socketId,
 					stream: event.streams[0]
 				});
@@ -272,7 +226,7 @@ class RTCFactory extends EventTarget {
 			this.isOriginator = false;
 			this._removePeer(socketId);
 
-			this._emit('removeStream', {
+			this.emit('leave', {
 				id: socketId,
 				stream: event.streams[0]
 			});
@@ -292,7 +246,7 @@ class RTCFactory extends EventTarget {
 			const connectionState = this.peers[socketId].connectionState;
 			this.log('RTC state change:', connectionState);
 			if (connectionState === 'disconnected' || connectionState === 'failed') {
-				this._emit('removeStream', {
+				this.emit('leave', {
 					id: socketId
 				});
 			}
@@ -300,14 +254,14 @@ class RTCFactory extends EventTarget {
 		sdpError: (error: any) => {
 			this.log('Session description error: ' + error.toString());
 
-			this._emit('error', {
+			this.emit('error', {
 				error: new Error(`Session description error: ${error.toString()}`)
 			});
 		},
 		createOfferError: () => {
 			this.error('ERROR creating offer');
 
-			this._emit('error', {
+			this.emit('error', {
 				error: new Error('Error while creating an offer')
 			});
 		}
@@ -317,7 +271,7 @@ class RTCFactory extends EventTarget {
 		try {
 			if (this.peers[socketId]) {
 				// do not create peer if connection is already established
-				this.warn('Already connected with:', socketId);
+				this.warn('You\'re already connected with:', socketId);
 				return;
 			}
 
@@ -331,7 +285,7 @@ class RTCFactory extends EventTarget {
 		} catch (error: any) {
 			this.error('RTC Peer failed: ' + error.message);
 
-			this._emit('error', {
+			this.emit('error', {
 				error: new Error(`RTC Peer failed: ${error.message}`)
 			});
 		}
@@ -375,16 +329,7 @@ class RTCFactory extends EventTarget {
 			delete this.streams[socketId];
 		}
 
-		this._emit('removeStream', { id: socketId });
-	}
-
-	// client event emitter
-	private _emit(eventName: string, details: any) {
-		this.dispatchEvent(
-			new CustomEvent(eventName, {
-				detail: details
-			})
-		);
+		this.emit('leave', { id: socketId });
 	}
 
 	// server event emitter
@@ -429,6 +374,7 @@ class RTCFactory extends EventTarget {
 	}
 
 	clean() {
+		this.removeAllListeners();
 		this.socket.removeAllListeners();
 		if (this._myId) {
 			this.peers[this._myId as string]?.close();
@@ -439,4 +385,4 @@ class RTCFactory extends EventTarget {
 	}
 }
 
-export default RTCFactory;
+export default RTCPeer2Peer;
