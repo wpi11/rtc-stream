@@ -1,45 +1,61 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
-const newModule = {
-	plugins: {},
-	test: (name, val) => {
-		console.log({ name, val });
-	},
 
-	register: function (plugin: any) {
-		const { name, exec } = plugin;
-		(this as any).plugins[name] = exec;
-		console.log('registered', plugin);
-	},
-
-	send: function (name, val) {
-		const func = (this as any)?.plugins?.[name];
-		console.log('sending..', func(name, val));
-	}
-};
-
-const plugin = {
-	name: 'superPlugin',
-	exec: function (a, b) {
-		console.log({ a, b });
-		return 'coolest plugin alive!';
-	}
-};
-
-newModule.register(plugin);
-newModule.send('superPlugin', '17');
 export default function App() {
 	const navigate = useNavigate();
+	const [form, setForm] = React.useState({
+		name: '',
+		room: ''
+	});
 
 	const handleConfsNavigation = () => {
-		navigate('/conference?name=Stylz&room=Demo');
+		navigate(`conference?name=${form.name}&room=${form.room}`);
+	};
+
+	const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const target = e.target as HTMLInputElement;
+		setForm((state) => ({ ...state, [target.id]: target.value }));
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter') handleConfsNavigation();
 	};
 
 	return (
-		<div>
-			<button onClick={handleConfsNavigation}>
-				Create Video Conference</button>
+		<div className='container'>
+			<h1 className='title'>Lobby</h1>
+			<input
+				id='name'
+				type='text'
+				className='name'
+				placeholder='Whats your name?'
+				defaultValue={form.name}
+				onChange={handleOnChange}
+			/>
+			<input
+				id='room'
+				type='text'
+				className='name'
+				placeholder='Enter room name'
+				defaultValue={form.room}
+				onChange={handleOnChange}
+				onKeyDown={handleKeyDown}
+			/>
+			<div>
+				<button
+					id='join-btn'
+					onClick={handleConfsNavigation}>
+					Join Conference
+				</button>
+			</div>
+			{/* <div>
+				<button
+					id='call-btn'
+					onClick={handleConfsNavigation}>
+					Create Call
+				</button>
+			</div> */}
 		</div>
 	);
 }
