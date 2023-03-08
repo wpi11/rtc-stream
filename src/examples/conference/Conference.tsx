@@ -7,44 +7,63 @@ import RTCFactory from '../../modules/RTCPeer2Peer';
 import { createVideoElement } from '../../utils/createVideoElement';
 import { removeVideoElement } from '../../utils/removeVideoElement';
 
-export default function Host() {
+export default function Conference() {
 	const params = new URLSearchParams(window.location.search);
 	const name = params.get('name') as string;
 	const room = params.get('room') as string;
 	const navigate = useNavigate();
 
+	const LocalStreamConfig = {
+		name: name,
+		gridId: 'video-grid'
+	};
+
+	const HostVideoDimensions = {
+		height: 400,
+		width: 400
+	};
+
+	const RemoteVideoDimensions = {
+		height: 200,
+		width: 200
+	};
+
 	const rtc = new RTCFactory({
 		socket,
 		pcConfig: iceConfig,
 		logging: {
-			log: true,
-			warn: true,
+			log: false,
+			warn: false,
 			error: false
 		}
 	});
 
 	React.useEffect(() => {
-		// producer event: create room
+		// host event: create room
 		rtc.on('created', (event: any) => {
 			rtc.log('created:', event);
 			rtc.streamReady();
 		});
-		// consumer event: join room
+
+		// participant event: join room
 		rtc.on('joined', (event: any) => {
 			rtc.log('joined:', event);
 			rtc.streamReady();
 		});
+
 		// stream event: add stream
 		rtc.on('stream', (event: any) => {
 			rtc.log('stream:', event);
-			createVideoElement({ id: event.id, stream: event.stream });
+			createVideoElement({ id: event.id, stream: event.stream, options: RemoteVideoDimensions });
 		});
+
 		// stream event: remove stream
 		rtc.on('leave', (event: any) => {
 			rtc.log('leave:', event);
 			removeVideoElement({ id: event.id });
 		});
 
+		// error event: error should be enabled in rtc options
 		rtc.on('error', (event: any) => {
 			rtc.log('Error:', event);
 		});
@@ -55,9 +74,12 @@ export default function Host() {
 	}, []);
 
 	const handleStart = () => {
-		rtc.getMyStream({ name }).then((stream) => {
-			createVideoElement({ id: name, stream });
-		});
+		rtc
+			.getMyStream(LocalStreamConfig)
+			.then((stream) => {
+				createVideoElement({ id: name, stream, options: HostVideoDimensions });
+			})
+			.catch((err) => console.error(err.message));
 	};
 
 	const handleJoin = () => {
@@ -72,9 +94,11 @@ export default function Host() {
 
 	return (
 		<div>
-			<button onClick={handleStart}>Start</button>
-			<button onClick={handleJoin}>Join</button>
-			<button onClick={handleLeave}>Leave</button>
+			<div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 10 }}>
+				<button onClick={handleStart}>Start</button>
+				<button onClick={handleJoin}>Join</button>
+				<button onClick={handleLeave}>Leave</button>
+			</div>
 			<div id='video-grid' />
 		</div>
 	);

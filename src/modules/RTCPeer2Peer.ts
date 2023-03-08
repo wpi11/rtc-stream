@@ -47,7 +47,21 @@ class RTCPeer2Peer extends EventEmitter {
 	}
 
 	// get stream ready
-	async getMyStream({ name }: { name: string }) {
+	async getMyStream({ name, gridId }: { name: string; gridId: string }) {
+		const videoGrid = document.getElementById(gridId);
+
+		if (!name) {
+			throw new Error(`Video name in stream options is required.`);
+		}
+
+		if (!gridId) {
+			throw new Error(`Video gridId in stream options is required.`);
+		}
+
+		if (!videoGrid) {
+			throw new Error(`Element with id '${gridId}' is required.`);
+		}
+
 		return navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then((stream) => {
 			this.log('Media stream ready.');
 			this.user.name = name;
@@ -271,7 +285,7 @@ class RTCPeer2Peer extends EventEmitter {
 		try {
 			if (this.peers[socketId]) {
 				// do not create peer if connection is already established
-				this.warn('You\'re already connected with:', socketId);
+				this.warn("You're already connected with:", socketId);
 				return;
 			}
 
