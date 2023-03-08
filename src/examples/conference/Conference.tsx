@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { iceConfig } from '../config/iceConfig';
-import { socket } from '../utils/socket';
-import RTCFactory from '../modules/RTCPeer2Peer';
-import { createVideoElement } from '../utils/createVideoElement';
-import { removeVideoElement } from '../utils/removeVideoElement';
+import { iceConfig } from '../../config/iceConfig';
+import { socket } from '../../utils/socket';
+import RTCFactory from '../../modules/RTCPeer2Peer';
+import { createVideoElement } from '../../utils/createVideoElement';
+import { removeVideoElement } from '../../utils/removeVideoElement';
 
 export default function Host() {
 	const params = new URLSearchParams(window.location.search);

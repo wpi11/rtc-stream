@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from 'react';
-import { socket } from '../utils/socket';
-import { iceConfig } from '../config/iceConfig';
+import { socket } from '../../utils/socket';
+import { iceConfig } from '../../config/iceConfig';
 
 export default function ProducerView() {
 	const peers: any = {};
