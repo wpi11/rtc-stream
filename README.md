@@ -1,11 +1,9 @@
-# WebRTC Peer Connection Module
-
-## Context
+# React WebRTC Streaming Example
 
 ## What is this?
-
+This repository will demonstrate the ways you can create a connection between browsers to stream audio/video content.
 ## What are the requirements?
-
+Basic understanding of React..
 ## Events
 
 ### .on
