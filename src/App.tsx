@@ -1,6 +1,34 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const newModule = {
+	plugins: {},
+	test: (name, val) => {
+		console.log({ name, val });
+	},
+
+	register: function (plugin: any) {
+		const { name, exec } = plugin;
+		(this as any).plugins[name] = exec;
+		console.log('registered', plugin);
+	},
+
+	send: function (name, val) {
+		const func = (this as any)?.plugins?.[name];
+		console.log('sending..', func(name, val));
+	}
+};
+
+const plugin = {
+	name: 'superPlugin',
+	exec: function (a, b) {
+		console.log({ a, b });
+		return 'coolest plugin alive!';
+	}
+};
+
+newModule.register(plugin);
+newModule.send('superPlugin', '17');
 export default function App() {
 	const navigate = useNavigate();
 
