@@ -6,6 +6,17 @@ import { socket } from '../../utils/socket';
 import RTCFactory from '../../modules/RTCPeer2Peer';
 import { createVideoElement } from '../../utils/createVideoElement';
 import { removeVideoElement } from '../../utils/removeVideoElement';
+import './Conference.css';
+
+const rtc = new RTCFactory({
+	socket,
+	pcConfig: iceConfig,
+	logging: {
+		log: true,
+		warn: false,
+		error: false
+	}
+});
 
 export default function Conference() {
 	const params = new URLSearchParams(window.location.search);
@@ -28,16 +39,6 @@ export default function Conference() {
 		width: 200
 	};
 
-	const rtc = new RTCFactory({
-		socket,
-		pcConfig: iceConfig,
-		logging: {
-			log: false,
-			warn: false,
-			error: false
-		}
-	});
-
 	React.useEffect(() => {
 		// host event: create room
 		rtc.on('created', (event: any) => {
@@ -54,7 +55,11 @@ export default function Conference() {
 		// stream event: add stream
 		rtc.on('stream', (event: any) => {
 			rtc.log('stream:', event);
-			createVideoElement({ id: event.id, stream: event.stream, options: RemoteVideoDimensions });
+			createVideoElement({
+				id: event.id,
+				stream: event.stream,
+				options: RemoteVideoDimensions
+			});
 		});
 
 		// stream event: remove stream
@@ -77,7 +82,11 @@ export default function Conference() {
 		rtc
 			.getMyStream(LocalStreamConfig)
 			.then((stream) => {
-				createVideoElement({ id: name, stream, options: HostVideoDimensions });
+				createVideoElement({
+					id: name,
+					stream,
+					options: HostVideoDimensions
+				});
 			})
 			.catch((err) => console.error(err.message));
 	};
@@ -94,7 +103,7 @@ export default function Conference() {
 
 	return (
 		<div>
-			<div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 10 }}>
+			<div className='controls'>
 				<button onClick={handleStart}>Start</button>
 				<button onClick={handleJoin}>Join</button>
 				<button onClick={handleLeave}>Leave</button>
