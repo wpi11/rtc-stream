@@ -3,6 +3,7 @@ import { IceConfig } from '../config/iceConfig';
 import { IPeers, IStreams, ILogs } from '../types/RTCFactory.types';
 import EventEmitter from 'eventemitter3';
 import { removeVideoElement } from '../utils/removeVideoElement';
+import { Socket } from 'socket.io-client';
 
 class RTCPeer2Peer extends EventEmitter {
 	private peers: IPeers = {};
@@ -15,7 +16,7 @@ class RTCPeer2Peer extends EventEmitter {
 	error: ILogs['error'];
 	user: { name?: string };
 	room: string | undefined;
-	socket: any;
+	socket: Socket;
 	pcConfig: IceConfig;
 	connectReady: boolean;
 	isOriginator: boolean;
@@ -41,9 +42,6 @@ class RTCPeer2Peer extends EventEmitter {
 		this.isOriginator = false;
 		this.connectReady = false;
 		this.inCall = false;
-
-		// setup socket listeners
-		this._establishSocketListeners();
 	}
 
 	// get stream ready
@@ -67,6 +65,11 @@ class RTCPeer2Peer extends EventEmitter {
 			this.user.name = name;
 			return (this._localStream = stream);
 		});
+	}
+
+	// initialize listeners
+	initListeners() {
+		this._establishSocketListeners();
 	}
 
 	// establish socket listeners
@@ -220,7 +223,7 @@ class RTCPeer2Peer extends EventEmitter {
 				}
 			}
 		},
-		addTrack: (socketId: string | number, event: { streams: any[] }) => {
+		addTrack: (socketId: string | number, event: { streams: MediaStream[] }) => {
 			this.log('Remote stream added for ', this.peers[socketId]);
 
 			if (this.streams[socketId]?.id !== event.streams[0].id) {
@@ -236,7 +239,7 @@ class RTCPeer2Peer extends EventEmitter {
 				});
 			}
 		},
-		removeTrack: (socketId: string, event: { streams: any[] }) => {
+		removeTrack: (socketId: string, event: { streams: MediaStream[] }) => {
 			this.isOriginator = false;
 			this._removePeer(socketId);
 
@@ -245,7 +248,7 @@ class RTCPeer2Peer extends EventEmitter {
 				stream: event.streams[0]
 			});
 		},
-		iceCandidate: (socketId: string, event: any) => {
+		iceCandidate: (socketId: string, event: RTCIceCandidate) => {
 			if (event.candidate) {
 				this._sendMessage({
 					toId: socketId,
@@ -256,8 +259,8 @@ class RTCPeer2Peer extends EventEmitter {
 				});
 			}
 		},
-		stateChange: (socketId: string, event: { connectionState: string }) => {
-			const connectionState = this.peers[socketId].connectionState;
+		stateChange: (socketId: string, event: RTCSignalingState) => {
+			const connectionState: RTCPeerConnectionState = this.peers[socketId].connectionState;
 			this.log('RTC state change:', connectionState);
 			if (connectionState === 'disconnected' || connectionState === 'failed') {
 				this.emit('leave', {
@@ -265,7 +268,7 @@ class RTCPeer2Peer extends EventEmitter {
 				});
 			}
 		},
-		sdpError: (error: any) => {
+		sdpError: (error: RTCError) => {
 			this.log('Session description error: ' + error.toString());
 
 			this.emit('error', {
@@ -289,7 +292,7 @@ class RTCPeer2Peer extends EventEmitter {
 				return;
 			}
 
-			this.peers[socketId] = new RTCPeerConnection(this.pcConfig as object);
+			this.peers[socketId] = new RTCPeerConnection(this.pcConfig as RTCConfiguration);
 			this.peers[socketId].onicecandidate = this._rtcEvents.iceCandidate.bind(this, socketId);
 			this.peers[socketId].ontrack = this._rtcEvents.addTrack.bind(this, socketId);
 			this.peers[socketId].onremovetrack = this._rtcEvents.removeTrack.bind(this, socketId);
@@ -354,7 +357,7 @@ class RTCPeer2Peer extends EventEmitter {
 	}
 
 	// public method: join room
-	joinRoom(room: string) {
+	joinRoom(name: string, room: string) {
 		if (this.room) {
 			return this.warn('You are currently in a room.');
 		}
@@ -364,6 +367,7 @@ class RTCPeer2Peer extends EventEmitter {
 		}
 
 		// create room
+		this.user.name = name;
 		this.log('create or join', { name: this.user.name, room });
 		this.socket.emit('create or join', { name: this.user.name, room });
 	}
@@ -381,7 +385,7 @@ class RTCPeer2Peer extends EventEmitter {
 	// broadcasting stream is ready
 	streamReady() {
 		if (this.room) {
-			this._sendMessage({ type: 'stream-ready' });
+			this._sendMessage({ type: 'stream-ready', room: this.room });
 		} else {
 			this.warn('You need to join a room before streaming.');
 		}

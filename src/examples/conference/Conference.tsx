@@ -82,6 +82,7 @@ export default function Conference() {
 		rtc
 			.getMyStream(LocalStreamConfig)
 			.then((stream) => {
+				rtc.initListeners();
 				createVideoElement({
 					id: name,
 					stream,
@@ -92,7 +93,7 @@ export default function Conference() {
 	};
 
 	const handleJoin = () => {
-		rtc.joinRoom(room);
+		rtc.joinRoom(name, room);
 	};
 
 	const handleLeave = () => {
@@ -102,7 +103,9 @@ export default function Conference() {
 	};
 
 	return (
-		<div>
+		<div className='main'>
+			<h1>Conference: {room}</h1>
+
 			<div className='controls'>
 				<button onClick={handleStart}>Start</button>
 				<button onClick={handleJoin}>Join</button>

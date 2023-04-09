@@ -29,6 +29,7 @@ io.on('connection', (socket) => {
 		const roomId = payload.room;
 		const numberOfClients = Object.keys(clients).length;
 
+		log(payload?.name, 'joining', payload.room, 'with', numberOfClients);
 		console.log(payload?.name, 'joining', payload.room, 'with', numberOfClients);
 
 		// These events are emitted only to the sender socket.
@@ -82,19 +83,19 @@ io.on('connection', (socket) => {
 	socket.on('create or join', (event) => {
 		const name = event.name;
 		const room = event.room;
-		log('created / joined room:', name);
+		log('created / joined room:', { name, room });
 
 		// number of clients in the room
 		const clientsInRoom = io.sockets.adapter.rooms.get(room);
 		let numClients = clientsInRoom ? clientsInRoom.size : 0;
 
 		if (numClients === 0) {
-			log(`Producer ${name} created room:`, room, numClients);
+			log(`Producer ${name} created room:`, { room, numClients });
 			producers[socket.id] = name;
 			socket.join(room);
 			socket.emit('created', { ...event, id: socket.id });
 		} else {
-			log(`Member ${name} joined room:`, room, numClients);
+			log(`Member ${name} joined room:`, { room, numClients });
 			clients[socket.id] = name;
 
 			io.sockets.in(room).emit('join', { ...event, id: socket.id });
@@ -110,16 +111,16 @@ io.on('connection', (socket) => {
 		const room = event?.room;
 
 		if (toId) {
-			log('To Signal Message:', socket.id, '->', event.type);
-			console.log('To Signal Message:', socket.id, '->', room);
+			log('To Signal Message:', { socket: socket.id, event: event.type });
+			console.log('To Signal Message:', { socket: socket.id, event: event.type });
 			io.to(toId).emit('message', { ...event, id: socket.id });
 		} else if (room) {
-			log('Room Signal Message:', socket.id, '->', event.type);
-			console.log('Room Signal Message:', socket.id, '->', room);
+			log('Room Signal Message:', { socket: socket.id, event: event.type });
+			console.log('Room Signal Message:', { socket: socket.id, event: event.type, room });
 			socket.broadcast.to(room).emit('message', { ...event, id: socket.id });
 		} else {
-			log('Broadcast Signal:', socket.id, '->', event.type);
-			console.log('Broadcast Signal Message:', socket.id, event.type);
+			log('Broadcast Signal:', { socket: socket.id, event: event.type });
+			console.log('Broadcast Signal Message:', { socket: socket.id, event: event.type });
 			socket.broadcast.emit('message', { ...event, id: socket.id });
 		}
 	});
