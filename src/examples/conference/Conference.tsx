@@ -29,7 +29,7 @@ export default function Conference() {
     gridId: "video-grid",
   };
 
-  const HostVideoDimensions = {
+  const LocalVideoDimensions = {
     height: 400,
     width: 400,
   };
@@ -46,13 +46,13 @@ export default function Conference() {
     // host event: create room
     rtc.on("created", (event: any) => {
       rtc.log("created:", event);
-      rtc.streamReady();
+      rtc.sendStreamReady();
     });
 
     // participant event: join room
     rtc.on("joined", (event: any) => {
       rtc.log("joined:", event);
-      rtc.streamReady();
+      rtc.sendStreamReady();
     });
 
     // stream event: add stream
@@ -66,8 +66,8 @@ export default function Conference() {
     });
 
     // stream event: remove stream
-    rtc.on("leave", (event: any) => {
-      rtc.log("leave:", event);
+    rtc.on("left", (event: any) => {
+      rtc.log("left:", event);
       removeVideoElement({ id: event.id });
     });
 
@@ -89,7 +89,7 @@ export default function Conference() {
         createVideoElement({
           id: name,
           stream,
-          options: HostVideoDimensions,
+          options: LocalVideoDimensions,
         });
       })
       .catch((err) => console.error(err.message));

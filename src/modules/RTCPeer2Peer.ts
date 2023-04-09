@@ -140,7 +140,7 @@ class RTCPeer2Peer extends EventEmitter {
     }) => {
       const socketId = event.id;
 
-      if (event.type === "leave") {
+      if (event.type === "left") {
         this.log(socketId, "has left the call.", { event });
 
         this._removePeer(socketId);
@@ -269,7 +269,7 @@ class RTCPeer2Peer extends EventEmitter {
       this.isOriginator = false;
       this._removePeer(socketId);
 
-      this.emit("leave", {
+      this.emit("left", {
         id: socketId,
         stream: event.streams[0],
       });
@@ -290,7 +290,7 @@ class RTCPeer2Peer extends EventEmitter {
         this.peers[socketId].connectionState;
       this.log("RTC state change:", connectionState);
       if (connectionState === "disconnected" || connectionState === "failed") {
-        this.emit("leave", {
+        this.emit("left", {
           id: socketId,
         });
       }
@@ -385,7 +385,7 @@ class RTCPeer2Peer extends EventEmitter {
       delete this.streams[socketId];
     }
 
-    this.emit("leave", { id: socketId });
+    this.emit("left", { id: socketId });
   }
 
   // server event emitter
@@ -421,12 +421,12 @@ class RTCPeer2Peer extends EventEmitter {
     this.log("leaving room", { name: this.user.name, room });
 
     this.isOriginator = false;
-    this._sendMessage({ type: "leave" });
+    this._sendMessage({ type: "left", user: this.user });
   }
 
   // public method: sends message to server
   // broadcasting stream is ready
-  streamReady() {
+  sendStreamReady() {
     if (this.room) {
       this._sendMessage({ type: "stream-ready", room: this.room });
     } else {
