@@ -78,6 +78,7 @@ class RTCPeer2Peer extends EventEmitter {
   private _establishSocketListeners() {
     // initial connect
     // if (!this.socket.connected)
+    this.socket.disconnect();
     this.socket.connect();
     // listen for connection confirmation
     this.socket.on("connect", this._socketEvents.connect.bind(this));
@@ -115,7 +116,11 @@ class RTCPeer2Peer extends EventEmitter {
       this.log("Created room:", { event });
       this.emit("created", event);
     },
-    joined: (event: { id: string | undefined; room: string | undefined }) => {
+    joined: (event: {
+      id: string | undefined;
+      room: string | undefined;
+      user: any;
+    }) => {
       this._myId = event.id;
       this.room = event.room;
       this.connectReady = true;
@@ -150,7 +155,7 @@ class RTCPeer2Peer extends EventEmitter {
         this.peers[socketId] &&
         this.peers[socketId].connectionState === "connected"
       ) {
-        this.log("Connection with ", socketId, "is already established", {
+        this.log("Connection with", socketId, "is already established", {
           peersEstablished: this.peers,
         });
         return;
@@ -244,10 +249,7 @@ class RTCPeer2Peer extends EventEmitter {
         }
       }
     },
-    addTrack: (
-      socketId: string | number,
-      event: { streams: MediaStream[] }
-    ) => {
+    addTrack: (socketId: string, event: { streams: MediaStream[] }) => {
       this.log("Remote stream added for ", this.peers[socketId]);
 
       if (this.streams[socketId]?.id !== event.streams[0].id) {
@@ -406,7 +408,11 @@ class RTCPeer2Peer extends EventEmitter {
     // create room
     this.user.name = name;
     this.log("create or join", { name: this.user.name, room });
-    this.socket.emit("create or join", { name: this.user.name, room });
+    this.socket.emit("create or join", {
+      user: this.user,
+      name: this.user.name,
+      room,
+    });
   }
 
   // public method: leave room
@@ -431,7 +437,6 @@ class RTCPeer2Peer extends EventEmitter {
   clean() {
     this.removeAllListeners();
     this.socket.removeAllListeners();
-    this.socket.disconnect();
     if (this._myId) {
       this.peers[this._myId as string]?.close();
       this._localStream?.getTracks().forEach((track) => track.stop());
