@@ -18,7 +18,7 @@ const rtc = new RTCFactory({
 });
 
 export default function Conference() {
-  const [searchParams, _] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const name = searchParams.get("name") as string;
   const room = searchParams.get("room") as string;
 
