@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { iceConfig } from "../../config/iceConfig";
 import { socket } from "../../utils/socket";
 import RTCFactory from "../../modules/RTCPeer2Peer";
@@ -18,13 +18,14 @@ const rtc = new RTCFactory({
 });
 
 export default function Conference() {
-  const params = new URLSearchParams(window.location.search);
-  const name = params.get("name") as string;
-  const room = params.get("room") as string;
+  // const params = new URLSearchParams(window.location.search);
+  // const name = params.get("name") as string;
+  // const room = params.get("room") as string;
+  const { name, room } = useParams();
   const navigate = useNavigate();
 
   const LocalStreamConfig = {
-    name: name,
+    name: String(name),
     gridId: "video-grid",
   };
 
@@ -86,7 +87,7 @@ export default function Conference() {
       .then((stream) => {
         rtc.initListeners();
         createVideoElement({
-          id: name,
+          id: String(name),
           stream,
           options: HostVideoDimensions,
         });
@@ -95,11 +96,11 @@ export default function Conference() {
   };
 
   const handleJoin = () => {
-    rtc.joinRoom(name, room);
+    rtc.joinRoom(String(name), String(room));
   };
 
   const handleLeave = () => {
-    rtc.leaveRoom(room);
+    rtc.leaveRoom(String(room));
     rtc.clean();
     navigate("/");
   };
