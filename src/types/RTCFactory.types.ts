@@ -1,27 +1,36 @@
 export interface IPeers {
-	[index: string]: RTCPeerConnection | any;
+  [index: string]: RTCPeerConnection | any;
 }
 
 export interface IStreams {
-	[index: string]: MediaStream | undefined;
+  [index: string]: MediaStream | undefined;
 }
 
 export interface ILogs {
-	warn: { (...data: any[]): void; (message?: any, ...optionalParams: any[]): void };
-	log: { (...data: any[]): void; (message?: any, ...optionalParams: any[]): void };
-	error: { (...data: any[]): void; (message?: any, ...optionalParams: any[]): void };
+  warn: {
+    (...data: any[]): void;
+    (message?: any, ...optionalParams: any[]): void;
+  };
+  log: {
+    (...data: any[]): void;
+    (message?: any, ...optionalParams: any[]): void;
+  };
+  error: {
+    (...data: any[]): void;
+    (message?: any, ...optionalParams: any[]): void;
+  };
 }
 
 export type ICallback = (...args: unknown[]) => void;
 
 export interface IEventData {
-	boundCallback: ICallback;
+  boundCallback: ICallback;
 
-	userCallback: ICallback;
+  userCallback: ICallback;
 
-	id: string;
+  id: string;
 
-	isOnce: boolean | undefined;
+  isOnce: boolean | undefined;
 
-	context: unknown;
+  context: unknown;
 }

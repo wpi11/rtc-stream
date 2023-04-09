@@ -1,1 +1,1 @@
-export { default as RTCPeer2Peer } from './RTCPeer2Peer';
+export { default as RTCPeer2Peer } from "./RTCPeer2Peer";

@@ -1,9 +1,11 @@
-html, body {
+html,
+body {
   color: #fff;
   background-color: #282828;
 }
 
-button, input {
+button,
+input {
   padding: 10px;
   width: 150px;
   margin: 10px;
