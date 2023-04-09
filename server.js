@@ -24,40 +24,40 @@ io.on("connection", (socket) => {
     socket.emit("log", arr);
   }
 
-  socket.on("join", (payload) => {
-    socket.join(payload.room);
-    clients[socket.id] = payload.name;
-    const roomId = payload.room;
-    const numberOfClients = Object.keys(clients).length;
+  // socket.on("join", (payload) => {
+  //   socket.join(payload.room);
+  //   clients[socket.id] = payload.name;
+  //   const roomId = payload.room;
+  //   const numberOfClients = Object.keys(clients).length;
 
-    log(payload?.name, "joining", payload.room, "with", numberOfClients);
-    console.log(
-      payload?.name,
-      "joining",
-      payload.room,
-      "with",
-      numberOfClients
-    );
+  //   log(payload?.name, "joining", payload.room, "with", numberOfClients);
+  //   console.log(
+  //     payload?.name,
+  //     "joining",
+  //     payload.room,
+  //     "with",
+  //     numberOfClients
+  //   );
 
-    // These events are emitted only to the sender socket.
-    // if (numberOfClients === 1) {
-    // if (payload.name === 'Stylz') {
-    // 	console.log(`Creating room ${roomId} and emitting room_created socket event`);
-    // 	socket.join(roomId);
-    // 	socket.emit('room_created', roomId);
-    // } else {
-    // 	console.log(`Joining room ${roomId} and emitting room_joined socket event`);
-    // 	socket.join(roomId);
-    // 	socket.emit('room_joined', roomId);
-    // }
+  //   // These events are emitted only to the sender socket.
+  //   // if (numberOfClients === 1) {
+  //   // if (payload.name === 'Stylz') {
+  //   // 	console.log(`Creating room ${roomId} and emitting room_created socket event`);
+  //   // 	socket.join(roomId);
+  //   // 	socket.emit('room_created', roomId);
+  //   // } else {
+  //   // 	console.log(`Joining room ${roomId} and emitting room_joined socket event`);
+  //   // 	socket.join(roomId);
+  //   // 	socket.emit('room_joined', roomId);
+  //   // }
 
-    // original
-    socket.join(payload.name);
-    socket.emit("join", { ...payload, numberOfClients });
-    socket.broadcast
-      .to(payload.room)
-      .emit("joined", { ...payload, numberOfClients });
-  });
+  //   // original
+  //   socket.join(payload.name);
+  //   socket.emit("join", { ...payload, numberOfClients });
+  //   socket.broadcast
+  //     .to(payload.room)
+  //     .emit("joined", { ...payload, numberOfClients });
+  // });
 
   socket.on("producer", (payload) => {
     console.log("registered producer:", payload.name);

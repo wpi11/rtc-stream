@@ -10,6 +10,9 @@ export default function App() {
   });
 
   const handleConfsNavigation = () => {
+    if (form.name === "" || form.room === "") {
+      return console.error("Requires name and room to continue.");
+    }
     navigate(`conference?name=${form.name}&room=${form.room}`);
   };
 
