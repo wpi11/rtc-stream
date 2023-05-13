@@ -1,0 +1,5 @@
+*.md
+*.json
+.vscode
+/build
+/public

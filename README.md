@@ -38,3 +38,8 @@ TBD..
 ### error
 
 TBD..
+
+### Docker
+
+Docker is leveraged to containerize this application
+Details in route..

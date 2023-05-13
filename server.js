@@ -1,63 +1,32 @@
 /* eslint-disable no-unused-vars */
-const express = require("express");
-const app = express();
-const server = require("http").Server(app);
-const { Server } = require("socket.io");
-const cors = require("cors");
-const PORT = 3001;
-app.use(cors());
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
+import path from "path";
 
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3000",
-  },
-});
+const PORT = 8080;
+
+const app = express();
+const server = http.Server(app);
+
+export const isDev = process.env.NODE_ENV === "development";
+const mode = isDev ? "development" : "production";
+
+const io = new Server(server);
 
 let producer = null;
 let producers = {};
 let clients = {};
 
 io.on("connection", (socket) => {
+  console.log("websocket server connected:", { id: socket.id, mode });
+
   function log() {
     const arr = ["Server ->"];
     arr.push.apply(arr, arguments);
     socket.emit("log", arr);
   }
-
-  // socket.on("join", (payload) => {
-  //   socket.join(payload.room);
-  //   clients[socket.id] = payload.name;
-  //   const roomId = payload.room;
-  //   const numberOfClients = Object.keys(clients).length;
-
-  //   log(payload?.name, "joining", payload.room, "with", numberOfClients);
-  //   console.log(
-  //     payload?.name,
-  //     "joining",
-  //     payload.room,
-  //     "with",
-  //     numberOfClients
-  //   );
-
-  //   // These events are emitted only to the sender socket.
-  //   // if (numberOfClients === 1) {
-  //   // if (payload.name === 'Stylz') {
-  //   // 	console.log(`Creating room ${roomId} and emitting room_created socket event`);
-  //   // 	socket.join(roomId);
-  //   // 	socket.emit('room_created', roomId);
-  //   // } else {
-  //   // 	console.log(`Joining room ${roomId} and emitting room_joined socket event`);
-  //   // 	socket.join(roomId);
-  //   // 	socket.emit('room_joined', roomId);
-  //   // }
-
-  //   // original
-  //   socket.join(payload.name);
-  //   socket.emit("join", { ...payload, numberOfClients });
-  //   socket.broadcast
-  //     .to(payload.room)
-  //     .emit("joined", { ...payload, numberOfClients });
-  // });
 
   socket.on("producer", (payload) => {
     console.log("registered producer:", payload.name);
@@ -75,12 +44,10 @@ io.on("connection", (socket) => {
     socket.broadcast
       .to(payload.room)
       .emit("offer", { ...payload, id: socket.id });
-    // socket.to(payload.id).emit('offer', { ...payload, id: socket.id });
   });
 
   socket.on("answer", (payload) => {
     console.log("answer to:", payload.name);
-    // socket.broadcast.to(payload.room).emit('answer', { ...payload, id: socket.id });
     socket.to(payload.id).emit("answer", { ...payload, id: socket.id });
   });
 
@@ -89,7 +56,6 @@ io.on("connection", (socket) => {
     socket.broadcast
       .to(payload.room)
       .emit("candidate", { ...payload, id: socket.id });
-    // socket.to(payload.name).emit('candidate', { ...payload, id: socket.id });
   });
 
   // Host
@@ -153,6 +119,14 @@ io.on("connection", (socket) => {
     delete clients[socket.id];
     socket.leave();
   });
+});
+
+app.use(cors());
+
+app.use(express.static("build"));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve("build/index.html"));
 });
 
 server.listen(PORT, () => {
