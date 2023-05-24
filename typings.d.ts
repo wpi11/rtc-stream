@@ -1,4 +1,4 @@
-declare module "@teamwayne/wrtc-stream" {
+declare module "@waynecodez/wrtc-stream" {
   export default class StreamService {
     constructor(props: any);
 

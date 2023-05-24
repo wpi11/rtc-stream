@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { iceConfig } from "../../config/iceConfig";
 import { socket } from "../../utils/socket";
-import StreamService from "@teamwayne/wrtc-stream";
+import StreamService from "@waynecodez/wrtc-stream";
 import { createVideoElement } from "../../utils/createVideoElement";
 import { removeVideoElement } from "../../utils/removeVideoElement";
 import "./Conference.css";

@@ -1,5 +1,5 @@
 {
-  "name": "@teamwayne/wrtc-stream",
+  "name": "@waynecodez/wrtc-stream",
   "author": "@waynecodez",
   "version": "0.0.3",
   "proxy": "http://localhost:8080",
