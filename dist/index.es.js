@@ -5,7 +5,7 @@ const h = ({ id: o }) => {
 class d extends a {
   constructor({
     socket: t,
-    pcConfig: i,
+    iceConfig: i,
     logging: r = { log: !0, warn: !0, error: !0 },
   }) {
     super(),
@@ -185,7 +185,7 @@ class d extends a {
       (this.warn = r.warn ? console.warn : () => {}),
       (this.error = r.error ? console.error : () => {}),
       (this.socket = t),
-      (this.pcConfig = i),
+      (this.iceConfig = i),
       (this.streams = {}),
       (this.user = {}),
       (this.isOriginator = !1),
@@ -231,7 +231,7 @@ class d extends a {
         this.warn("You're already connected with:", t);
         return;
       }
-      (this.peers[t] = new RTCPeerConnection(this.pcConfig)),
+      (this.peers[t] = new RTCPeerConnection(this.iceConfig)),
         (this.peers[t].onicecandidate = this._rtcEvents.iceCandidate.bind(
           this,
           t

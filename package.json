@@ -19,7 +19,7 @@
     "docker:di:tag": "docker tag react-video-image mrwaynerp/react-video",
     "docker:di:push": "docker push mrwaynerp/react-video",
     "docker:splash": "npm run build && docker-compose build && npm run docker:di:tag && npm run docker:di:push",
-    "build:package": "vite build && cp README.md ./dist/README.md"
+    "build:package": "vite build"
   },
   "dependencies": {
     "cors": "^2.8.5",
