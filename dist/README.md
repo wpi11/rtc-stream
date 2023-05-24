@@ -1,4 +1,4 @@
-# React Video Stream powered by Web RTC (Doc WIP)
+# React Video Stream powered by Web RTC
 
 ## What is this?
 
@@ -9,12 +9,9 @@ Providing a module that serves as an abstraction layer, effectively shields deve
 ## What are the requirements?
 
 1. Node.js and npm installed
-2. Installation of npm packages:
-   1. socket.io (server)
-   2. socket.io-client (client)
-3. Development environment:
-   1. Backend server with `socket.io` connection
-   2. Frontend client with `socket.io-client` connection
+2. React development environment with the following packages installed:
+   1.
+3. Installation of npm package: `@teamwayne/wrtc-stream`
 
 ## Connection Flow
 

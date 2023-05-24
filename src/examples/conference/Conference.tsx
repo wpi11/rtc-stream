@@ -9,7 +9,7 @@ import "./Conference.css";
 
 const rtc = new StreamService({
   socket,
-  pcConfig: iceConfig,
+  iceConfig: iceConfig,
   logging: {
     log: true,
     warn: false,

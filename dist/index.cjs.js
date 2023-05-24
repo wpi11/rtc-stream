@@ -1,3 +1,4 @@
+"use strict";
 const a = require("eventemitter3"),
   h = ({ id: o }) => {
     document.getElementById(`vid_${o}`)?.remove();
@@ -292,7 +293,7 @@ class c extends a {
       ? this._sendMessage({ type: "stream-ready", room: this.room })
       : this.warn("You need to join a room before streaming.");
   }
-  clean() {
+  stopListeners() {
     this.removeAllListeners(),
       this.socket.removeAllListeners(),
       this._myId &&

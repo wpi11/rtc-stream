@@ -2,7 +2,6 @@
   "name": "@teamwayne/wrtc-stream",
   "author": "@waynecodez",
   "version": "0.0.3",
-  "private": true,
   "proxy": "http://localhost:8080",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -20,7 +19,7 @@
     "docker:di:tag": "docker tag react-video-image mrwaynerp/react-video",
     "docker:di:push": "docker push mrwaynerp/react-video",
     "docker:splash": "npm run build && docker-compose build && npm run docker:di:tag && npm run docker:di:push",
-    "build:package": "vite build"
+    "build:package": "vite build && cp README.md ./dist/README.md"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -5,6 +5,11 @@ import EventEmitter from "eventemitter3";
 import { removeVideoElement } from "../utils/removeVideoElement";
 import { Socket } from "socket.io-client";
 
+/**
+ * @package WTRC-Stream
+ * @param socket {Object} - A Socket is the fundamental class for interacting with the server.
+ * @param iceConfig {string} -
+ */
 class StreamService extends EventEmitter {
   private peers: IPeers = {};
   private streams: IStreams;
@@ -17,18 +22,18 @@ class StreamService extends EventEmitter {
   user: { name?: string };
   room: string | undefined;
   socket: Socket;
-  pcConfig: IceConfig;
+  iceConfig: IceConfig;
   connectReady: boolean;
   isOriginator: boolean;
   inCall: boolean;
 
   constructor({
     socket,
-    pcConfig,
+    iceConfig,
     logging = { log: true, warn: true, error: true },
   }: {
-    socket: any;
-    pcConfig: IceConfig;
+    socket: Socket;
+    iceConfig: IceConfig;
     logging: { log?: boolean; warn?: boolean; error?: boolean };
   }) {
     super();
@@ -36,7 +41,7 @@ class StreamService extends EventEmitter {
     this.warn = logging.warn ? console.warn : () => {};
     this.error = logging.error ? console.error : () => {};
     this.socket = socket;
-    this.pcConfig = pcConfig as IceConfig;
+    this.iceConfig = iceConfig as IceConfig;
     this.streams = {};
     this.user = {};
     this.isOriginator = false;
@@ -320,7 +325,7 @@ class StreamService extends EventEmitter {
       }
 
       this.peers[socketId] = new RTCPeerConnection(
-        this.pcConfig as RTCConfiguration
+        this.iceConfig as RTCConfiguration
       );
       this.peers[socketId].onicecandidate = this._rtcEvents.iceCandidate.bind(
         this,
