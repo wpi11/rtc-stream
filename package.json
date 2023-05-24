@@ -68,5 +68,6 @@
       "last 1 safari version"
     ]
   },
-  "type": "module"
+  "type": "module",
+  "license": "https://github.com/waynecodez/wrtc-stream/LICENSE.md"
 }
