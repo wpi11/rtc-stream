@@ -1,14 +1,15 @@
 {
   "name": "@waynecodez/wrtc-stream",
   "author": "@waynecodez",
-  "version": "0.0.6",
+  "version": "0.0.25",
   "proxy": "http://localhost:8080",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
+  "types": "@types/index.d.ts",
   "scripts": {
     "start": "react-scripts start",
-    "serve": "node server.js",
-    "dev": "nodemon server.js",
+    "serve": "node index.js",
+    "dev": "nodemon index.js",
     "prettier:check": "prettier --check \"**/*.+(ts|tsx|js|jsx|json|css|md)\"",
     "prettier:fix": "prettier --write \"**/*.+(ts|tsx|js|jsx|json|css|md)\"",
     "prepare": "husky install",
@@ -19,9 +20,10 @@
     "docker:di:tag": "docker tag react-video-image mrwaynerp/react-video",
     "docker:di:push": "docker push mrwaynerp/react-video",
     "docker:splash": "npm run build && docker-compose build && npm run docker:di:tag && npm run docker:di:push",
-    "build:package": "vite build"
+    "build:package": "vite build && cp -v index.js ./dist && mv -v ./dist/index.js ./dist/rvs.js"
   },
   "dependencies": {
+    "chalk": "^5.2.0",
     "cors": "^2.8.5",
     "esbuild": "^0.17.19",
     "eventemitter3": "^5.0.0",
@@ -39,16 +41,16 @@
     "webrtc-adapter": "^8.2.0"
   },
   "devDependencies": {
-    "eslint": "^8.38.0",
-    "husky": "^8.0.3",
-    "prettier": "^2.8.7",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.12",
     "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11"
+    "@types/react-dom": "^18.0.11",
+    "eslint": "^8.38.0",
+    "husky": "^8.0.3",
+    "prettier": "^2.8.7"
   },
   "eslintConfig": {
     "extends": [
@@ -69,5 +71,5 @@
     ]
   },
   "type": "module",
-  "license": "https://github.com/waynecodez/wrtc-stream/blob/main/LICENSE.md"
+  "license": "MIT"
 }
