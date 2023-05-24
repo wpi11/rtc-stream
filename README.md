@@ -1,4 +1,4 @@
-# React Video Stream powered by Web RTC (Doc WIP)
+# WebRTC Stream (Doc WIP)
 
 ## What is this?
 
@@ -49,7 +49,5 @@ Providing a module that serves as an abstraction layer, effectively shields deve
 - TBD
 
 ### Docker
-
-Docker is leveraged to containerize this application
-Details in route..
-Notes TODO: Build, Tag, Push
+The Dockerization of this package is WIP.
+- TODO: Build, Tag, Push
