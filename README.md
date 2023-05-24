@@ -23,8 +23,9 @@ Providing a module that serves as an abstraction layer, effectively shields deve
 
 ## Signaling
 
-- Stream
+- WIP
 
+## Events
 ### `created` event
 
 1. Fires on room creation.
@@ -48,6 +49,6 @@ Providing a module that serves as an abstraction layer, effectively shields deve
 
 - TBD
 
-### Docker
+## Docker
 The Dockerization of this package is WIP.
 - TODO: Build, Tag, Push

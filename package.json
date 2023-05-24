@@ -1,7 +1,7 @@
 {
   "name": "@waynecodez/wrtc-stream",
   "author": "@waynecodez",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "proxy": "http://localhost:8080",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
