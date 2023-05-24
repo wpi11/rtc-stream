@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   server:
-    image: react-video-image
+    image: react-video-stream
     container_name: server
     build:
       context: .

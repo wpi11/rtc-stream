@@ -2,12 +2,12 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { iceConfig } from "../../config/iceConfig";
 import { socket } from "../../utils/socket";
-import RTCFactory from "../../modules/RTCPeer2Peer";
+import StreamService from "@teamwayne/wrtc-stream";
 import { createVideoElement } from "../../utils/createVideoElement";
 import { removeVideoElement } from "../../utils/removeVideoElement";
 import "./Conference.css";
 
-const rtc = new RTCFactory({
+const rtc = new StreamService({
   socket,
   pcConfig: iceConfig,
   logging: {
@@ -77,22 +77,22 @@ export default function Conference() {
     });
 
     return () => {
-      rtc.clean();
+      rtc.stopListeners();
     };
   }, [RemoteVideoDimensions]);
 
   const handleStart = () => {
     rtc
       .getMyStream(LocalStreamConfig)
-      .then((stream) => {
-        rtc.initListeners();
+      .then((stream: MediaStream) => {
+        rtc.startListeners();
         createVideoElement({
           id: name,
           stream,
           options: LocalVideoDimensions,
         });
       })
-      .catch((err) => console.error(err.message));
+      .catch((err: Error) => console.error(err.message));
   };
 
   const handleJoin = () => {
@@ -104,7 +104,7 @@ export default function Conference() {
 
   const handleLeave = () => {
     rtc.leaveRoom(room);
-    rtc.clean();
+    rtc.stopListeners();
     navigate("/");
   };
 

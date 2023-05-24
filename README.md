@@ -1,45 +1,51 @@
-# React WebRTC Streaming Example
+# React Video Stream powered by Web RTC
 
 ## What is this?
 
-This repository will demonstrate the ways you can create a connection between browsers to stream audio/video content.
+This repository was created to simplify the implementation of WebRTC (Web Real-Time Communication). WebRTC is a powerful technology that enables real-time audio, video, and data communication directly between web browsers or other compatible devices. However, implementing WebRTC can be challenging due to its complex nature.
+
+Providing a module that serves as an abstraction layer, effectively shields developers from the intricacies and difficulties associated with implementing WebRTC. By leveraging this package, developers can focus on the core functionality of their applications without having to delve deeply into the low-level details of WebRTC.
 
 ## What are the requirements?
 
-Basic understanding of React..
+1. Node.js and npm installed
+2. React development environment
+3. Installation of npm package: `@teamwayne/wrtc-stream`
 
-## Connection Steps
+## Connection Flow
 
-1. Start browser native navigator to get and set local stream
-2. Create/Join room
+1. Host: creates / joins room
+2. ...
 
-## Events
+## Signaling
 
-### created
+- Stream
+
+### `created` event
 
 1. Fires on room creation.
 2. Creates local peer connection and creates offer.
 3. Signal service broadcasts that the stream is ready.
-4. Receiving peers will create a peer connection
-   and add media stream.
+4. Receiving peers will create a peer connection and add media stream.
 
-### joined
+### `joined` event
 
-TBD..
+- TBD
 
-### stream
+### `stream` event
 
-TBD..
+- TBD
 
-### leave
+### `leave` event
 
-TBD..
+- TBD
 
-### error
+### `error` event
 
-TBD..
+- TBD
 
 ### Docker
 
 Docker is leveraged to containerize this application
 Details in route..
+Notes TODO: Build, Tag, Push

@@ -1,11 +1,11 @@
 // import { Socket } from 'socket.io-client';
 import { IceConfig } from "../config/iceConfig";
-import { IPeers, IStreams, ILogs } from "../types/RTCFactory.types";
+import { IPeers, IStreams, ILogs } from "../types/EventsManager.types";
 import EventEmitter from "eventemitter3";
 import { removeVideoElement } from "../utils/removeVideoElement";
 import { Socket } from "socket.io-client";
 
-class RTCPeer2Peer extends EventEmitter {
+class StreamService extends EventEmitter {
   private peers: IPeers = {};
   private streams: IStreams;
   private _localStream: MediaStream | undefined;
@@ -70,7 +70,7 @@ class RTCPeer2Peer extends EventEmitter {
   }
 
   // initialize listeners
-  initListeners() {
+  startListeners() {
     this._establishSocketListeners();
   }
 
@@ -434,7 +434,7 @@ class RTCPeer2Peer extends EventEmitter {
     }
   }
 
-  clean() {
+  stopListeners() {
     this.removeAllListeners();
     this.socket.removeAllListeners();
     if (this._myId) {
@@ -446,4 +446,4 @@ class RTCPeer2Peer extends EventEmitter {
   }
 }
 
-export default RTCPeer2Peer;
+export default StreamService;

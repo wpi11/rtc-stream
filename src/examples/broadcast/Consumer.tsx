@@ -10,7 +10,7 @@ export default function Consumer() {
   const params = new URLSearchParams(window.location.search);
   const name = params.get("name");
   const localVideoRef = React.useRef(null);
-  const remoteVideoRef = React.useRef(null);
+  // const remoteVideoRef = React.useRef(null);
 
   React.useEffect(() => {
     console.clear();

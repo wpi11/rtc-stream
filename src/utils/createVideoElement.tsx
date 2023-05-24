@@ -1,17 +1,14 @@
+type VideoElement = {
+  height: number;
+  width: number;
+};
 interface CreateVideoElement {
   id: string;
   stream: MediaStream;
-  options: {
-    height: number;
-    width: number;
-  };
+  options?: VideoElement;
 }
 
-const createVideoElement = ({
-  id,
-  stream,
-  options: { height = 300, width = 300 },
-}: CreateVideoElement) => {
+const createVideoElement = ({ id, stream, options }: CreateVideoElement) => {
   const videoGrid = document.getElementById("video-grid");
   const exists = document.getElementById(`vid_${id}`) as HTMLElement;
 
@@ -27,8 +24,8 @@ const createVideoElement = ({
     videoEl.muted = true;
     videoEl.autoplay = true;
     videoEl.playsInline = true;
-    videoEl.style.height = `${height}px`;
-    videoEl.style.width = `${width}px`;
+    videoEl.style.height = `${options?.height}px`;
+    videoEl.style.width = `${options?.width}px`;
     videoEl.style.borderRadius = "10px";
     videoEl.style.boxShadow = "50px";
     videoEl.style.margin = "10px";
