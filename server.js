@@ -6,7 +6,7 @@ import cors from "cors";
 import chalk from "chalk";
 // import path from 'path';
 
-const PORT = 8080;
+const PORT = 7000;
 const isDev = process.env.NODE_ENV === "development";
 
 export const start = () =>

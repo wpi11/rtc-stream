@@ -24,5 +24,5 @@ ENV NODE_ENV=production
 # COPY ./package*.json .
 # COPY ./server.js .
 # RUN npm ci --only=production
-EXPOSE 8080
+EXPOSE 7000
 ENTRYPOINT ["node", "index.js"]
