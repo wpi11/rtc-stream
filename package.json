@@ -28,8 +28,8 @@
 		"build:package": "vite build && cp -v index.js ./dist && mv -v ./dist/index.js ./dist/rvs.js",
 		"watch:package": "vite build -w",
 		"release": "standard-version",
-		"release:minor": "standard-version --release-as minor",
 		"release:patch": "standard-version --release-as patch",
+		"release:minor": "standard-version --release-as minor",
 		"release:major": "standard-version --release-as major",
 		"release:push": "git push --follow-tags origin main && npm publish"
 	},

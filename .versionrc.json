@@ -1,13 +1,13 @@
 {
     "types": [
-      {"type": "feat", "section": "Features"},
-      {"type": "fix", "section": "Bug Fixes"},
-      {"type": "chore", "hidden": true},
-      {"type": "docs", "hidden": true},
-      {"type": "style", "hidden": true},
-      {"type": "refactor", "hidden": true},
-      {"type": "perf", "hidden": true},
-      {"type": "test", "hidden": true}
+		{ "type": "feat", "section": "Features" },
+		{ "type": "fix", "section": "Bug Fixes" },
+		{ "type": "chore", "section": "Chores" },
+		{ "type": "docs", "section": "Documentation" },
+		{ "type": "style", "section": "Styling" },
+		{ "type": "refactor", "section": "Refactoring" },
+		{ "type": "perf", "section": "Performance" },
+		{ "type": "test", "section": "Testing" }
     ],
     "commitUrlFormat": "https://github.com/@waynecodez/rtc-stream/commits{{hash}}",
     "compareUrlFormat": "https://github.com/@waynecodez/rtc-stream/compare/{{previousTag}}...{{currentTag}}"
