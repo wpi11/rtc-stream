@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/@waynecodez/rtc-stream/compare/v0.1.0...v0.1.1) (2023-05-26)
+
+
+### Chores
+
+* amends standard-version config ([6876ba5](https://github.com/@waynecodez/rtc-stream/commits6876ba5f62ebc9496bab08b67060ea910bd9c808))
+
 ## [0.1.0](https://github.com/@waynecodez/rtc-stream/compare/v0.0.2...v0.1.0) (2023-05-26)
 
 
