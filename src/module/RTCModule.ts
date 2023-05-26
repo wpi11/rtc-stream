@@ -1,18 +1,49 @@
-// import { Socket } from 'socket.io-client';
-import { IceConfig } from "../config/iceConfig";
-import { IPeers, IStreams, ILogs } from "../types/EventsManager.types";
+import io, { Socket, ManagerOptions } from "socket.io-client";
 import EventEmitter from "eventemitter3";
+import { IPeers, IStreams, ILogs } from "../types/rtc-module.types";
 import { removeVideoElement } from "../utils/removeVideoElement";
-import { Socket } from "socket.io-client";
+
+interface RTCModuleType {
+  /**
+   * Server path uri
+   */
+  path: string;
+  /**
+   * Socket.io config override
+   */
+  ioOptions?: ManagerOptions;
+  /**
+   * WebRTC ICE configuration
+   */
+  iceConfig: RTCConfiguration;
+  /**
+   * RTCModule logging
+   */
+  logging?: {
+    log: boolean;
+    warn: boolean;
+    error: boolean;
+  };
+}
+
+const defaultSocketOptions: Partial<ManagerOptions> = {
+  transports: ["polling", "websocket"],
+};
+
+const defaultLoggingOptions = {
+  log: true,
+  warn: true,
+  error: true,
+};
 
 /**
  * @package WTRC-Stream
  * @param socket {Object} - A Socket is the fundamental class for interacting with the server.
  * @param iceConfig {string} -
  */
-class StreamService extends EventEmitter {
-  private peers: IPeers = {};
-  private streams: IStreams;
+class RTCModule extends EventEmitter {
+  private _peers: IPeers = {};
+  private _streams: IStreams;
   private _localStream: MediaStream | undefined;
   private _myId: string | undefined;
   private _isAdmin: boolean | undefined;
@@ -22,54 +53,78 @@ class StreamService extends EventEmitter {
   user: { name?: string };
   room: string | undefined;
   socket: Socket;
-  iceConfig: IceConfig;
+  iceConfig: RTCConfiguration;
   connectReady: boolean;
   isOriginator: boolean;
   inCall: boolean;
+  isSetup: boolean;
 
   constructor({
-    socket,
+    path,
+    ioOptions,
     iceConfig,
-    logging = { log: true, warn: true, error: true },
-  }: {
-    socket: Socket;
-    iceConfig: IceConfig;
-    logging: { log?: boolean; warn?: boolean; error?: boolean };
-  }) {
+    logging = defaultLoggingOptions,
+  }: RTCModuleType) {
     super();
     this.log = logging.log ? console.log : () => {};
     this.warn = logging.warn ? console.warn : () => {};
     this.error = logging.error ? console.error : () => {};
-    this.socket = socket;
-    this.iceConfig = iceConfig as IceConfig;
-    this.streams = {};
+    this.socket = io(path, { ...defaultSocketOptions, ...ioOptions });
+    this.iceConfig = iceConfig;
+    this._streams = {};
     this.user = {};
     this.isOriginator = false;
     this.connectReady = false;
     this.inCall = false;
+    this.isSetup = false;
+  }
+
+  // setup will setup and print any missing required options
+  setup({ name, gridId }: { name: string; gridId: string }) {
+    let videoGrid = null;
+
+    try {
+      if (!window) {
+        console.log("Note: window object is not detected.");
+      } else {
+        videoGrid = document.getElementById(gridId);
+      }
+
+      if (!videoGrid && window) {
+        throw new Error(`Element with id '${gridId}' is required.`);
+      }
+
+      if (!name) {
+        throw new Error(
+          `"name" is required in "rtc.setup({ name: 'name', gridId: 'id' })".`
+        );
+      }
+
+      if (!gridId) {
+        throw new Error(
+          `"gridId" is required in "rtc.setup({ name: 'name', gridId: 'id' })".`
+        );
+      }
+
+      this.user.name = name;
+      this.isSetup = true;
+    } catch (err: Error | any) {
+      console.error("setup failed.", err.message);
+    }
   }
 
   // get stream ready
-  async getMyStream({ name, gridId }: { name: string; gridId: string }) {
-    const videoGrid = document.getElementById(gridId);
-
-    if (!name) {
-      throw new Error(`Video name in stream options is required.`);
-    }
-
-    if (!gridId) {
-      throw new Error(`Video gridId in stream options is required.`);
-    }
-
-    if (!videoGrid) {
-      throw new Error(`Element with id '${gridId}' is required.`);
+  async getMyStream() {
+    if (!this.isSetup) {
+      throw new Error(
+        'RTC module is not setup. Have you called "rtc.setup()"?'
+      );
     }
 
     return navigator.mediaDevices
       .getUserMedia({ audio: false, video: true })
       .then((stream) => {
         this.log("Media stream ready.");
-        this.user.name = name;
         return (this._localStream = stream);
       });
   }
@@ -157,11 +212,11 @@ class StreamService extends EventEmitter {
 
       // prevent duplicate connection attempts
       if (
-        this.peers[socketId] &&
-        this.peers[socketId].connectionState === "connected"
+        this._peers[socketId] &&
+        this._peers[socketId].connectionState === "connected"
       ) {
         this.log("Connection with", socketId, "is already established", {
-          peersEstablished: this.peers,
+          peersEstablished: this._peers,
         });
         return;
       }
@@ -174,22 +229,22 @@ class StreamService extends EventEmitter {
             {
               myId: this._myId,
               theirId: socketId,
-              streams: this.streams,
-              connections: this.peers,
+              streams: this._streams,
+              connections: this._peers,
             }
           );
           return;
         case "offer":
-          if (!this.peers[socketId]) {
+          if (!this._peers[socketId]) {
             this._connectPeer(socketId);
           }
-          this.peers[socketId].setRemoteDescription(
+          this._peers[socketId].setRemoteDescription(
             new RTCSessionDescription(event.sdp)
           );
           this._rtcEvents.makeAnswer(socketId);
           return;
         case "answer":
-          this.peers[socketId].setRemoteDescription(
+          this._peers[socketId].setRemoteDescription(
             new RTCSessionDescription(event.sdp)
           );
           return;
@@ -199,7 +254,7 @@ class StreamService extends EventEmitter {
           }
           this.inCall = true;
           const candidate = new RTCIceCandidate(event.candidate);
-          this.peers[socketId].addIceCandidate(candidate);
+          this._peers[socketId].addIceCandidate(candidate);
           return;
         default:
           return;
@@ -215,9 +270,9 @@ class StreamService extends EventEmitter {
 
   private _rtcEvents = {
     makeOffer: (socketId: string) => {
-      this.log("Making offer:", { peer: this.peers[socketId] });
+      this.log("Making offer:", { peer: this._peers[socketId] });
 
-      this.peers[socketId]
+      this._peers[socketId]
         .createOffer()
         .then(
           this._rtcEvents.sendLocalDescription.bind(this, socketId),
@@ -225,9 +280,9 @@ class StreamService extends EventEmitter {
         );
     },
     makeAnswer: (socketId: string) => {
-      this.log("Sending answer:", { peer: this.peers[socketId] });
+      this.log("Sending answer:", { peer: this._peers[socketId] });
 
-      this.peers[socketId]
+      this._peers[socketId]
         .createAnswer()
         .then(
           this._rtcEvents.sendLocalDescription.bind(this, socketId),
@@ -236,7 +291,7 @@ class StreamService extends EventEmitter {
     },
     sendLocalDescription: async (socketId: string, sessionDescription: any) => {
       try {
-        await this.peers[socketId].setLocalDescription(sessionDescription);
+        await this._peers[socketId].setLocalDescription(sessionDescription);
         this._sendMessage({
           toId: socketId,
           name: this.user.name,
@@ -245,20 +300,20 @@ class StreamService extends EventEmitter {
           type: sessionDescription.type,
         });
       } catch (e) {
-        if (this.peers[socketId].connectionState !== "new") {
+        if (this._peers[socketId].connectionState !== "new") {
           this.error("Failed to setLocalDescription", {
-            state: this.peers[socketId].connectionState,
-            peer: this.peers[socketId],
-            peers: this.peers,
+            state: this._peers[socketId].connectionState,
+            peer: this._peers[socketId],
+            peers: this._peers,
           });
         }
       }
     },
     addTrack: (socketId: string, event: { streams: MediaStream[] }) => {
-      this.log("Remote stream added for ", this.peers[socketId]);
+      this.log("Remote stream added for ", this._peers[socketId]);
 
-      if (this.streams[socketId]?.id !== event.streams[0].id) {
-        this.streams[socketId] = event.streams[0];
+      if (this._streams[socketId]?.id !== event.streams[0].id) {
+        this._streams[socketId] = event.streams[0];
 
         this.emit("stream", {
           id: socketId,
@@ -292,7 +347,7 @@ class StreamService extends EventEmitter {
     },
     stateChange: (socketId: string, event: RTCSignalingState) => {
       const connectionState: RTCPeerConnectionState =
-        this.peers[socketId].connectionState;
+        this._peers[socketId].connectionState;
       this.log("RTC state change:", connectionState);
       if (connectionState === "disconnected" || connectionState === "failed") {
         this.emit("left", {
@@ -318,31 +373,31 @@ class StreamService extends EventEmitter {
 
   private async _createPeer(socketId: string) {
     try {
-      if (this.peers[socketId]) {
+      if (this._peers[socketId]) {
         // do not create peer if connection is already established
         this.warn("You're already connected with:", socketId);
         return;
       }
 
-      this.peers[socketId] = new RTCPeerConnection(
+      this._peers[socketId] = new RTCPeerConnection(
         this.iceConfig as RTCConfiguration
       );
-      this.peers[socketId].onicecandidate = this._rtcEvents.iceCandidate.bind(
+      this._peers[socketId].onicecandidate = this._rtcEvents.iceCandidate.bind(
         this,
         socketId
       );
-      this.peers[socketId].ontrack = this._rtcEvents.addTrack.bind(
+      this._peers[socketId].ontrack = this._rtcEvents.addTrack.bind(
         this,
         socketId
       );
-      this.peers[socketId].onremovetrack = this._rtcEvents.removeTrack.bind(
+      this._peers[socketId].onremovetrack = this._rtcEvents.removeTrack.bind(
         this,
         socketId
       );
-      this.peers[socketId].onconnectionstatechange =
+      this._peers[socketId].onconnectionstatechange =
         this._rtcEvents.stateChange.bind(this, socketId);
 
-      this.log("Created RTC Peer for:", { socketId, peers: this.peers });
+      this.log("Created RTC Peer for:", { socketId, peers: this._peers });
     } catch (error: any) {
       this.error("RTC Peer failed: " + error.message);
 
@@ -354,6 +409,10 @@ class StreamService extends EventEmitter {
 
   // connect rtc peer connection
   private _connectPeer(socketId: string) {
+    if (!socketId) {
+      throw new Error("_connectPeer requires socket id.");
+    }
+
     if (this._localStream === undefined && !this.connectReady) {
       return this.warn("This remote peer is not ready for connection.", {
         ready: this.connectReady,
@@ -363,7 +422,7 @@ class StreamService extends EventEmitter {
     }
 
     this._createPeer(socketId);
-    this.peers[socketId].addStream(this._localStream);
+    this._peers[socketId].addStream(this._localStream);
 
     if (this.isOriginator) {
       this.log("FYI - You initiated this call.");
@@ -377,17 +436,17 @@ class StreamService extends EventEmitter {
 
   private _removePeer(socketId: string) {
     if (!socketId) {
-      this.peers.forEach((peer: any, index: number) => {
+      this._peers.forEach((peer: any, index: number) => {
         this.log("Closing peer connection:", { id: socketId, peer });
         peer.close();
-        delete this.peers[index];
+        delete this._peers[index];
       });
-      this.streams = {};
+      this._streams = {};
     } else {
-      if (!this.peers[socketId]) return;
-      this.peers[socketId].close();
-      delete this.peers[socketId];
-      delete this.streams[socketId];
+      if (!this._peers[socketId]) return;
+      this._peers[socketId].close();
+      delete this._peers[socketId];
+      delete this._peers[socketId];
     }
 
     this.emit("left", { id: socketId });
@@ -443,7 +502,7 @@ class StreamService extends EventEmitter {
     this.removeAllListeners();
     this.socket.removeAllListeners();
     if (this._myId) {
-      this.peers[this._myId as string]?.close();
+      this._peers[this._myId as string]?.close();
       this._localStream?.getTracks().forEach((track) => track.stop());
       removeVideoElement({ id: this._myId });
       this.log("Destroyed RTC session.");
@@ -451,4 +510,4 @@ class StreamService extends EventEmitter {
   }
 }
 
-export default StreamService;
+export default RTCModule;

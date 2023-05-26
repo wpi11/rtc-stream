@@ -1,76 +1,86 @@
 {
-  "name": "@waynecodez/wrtc-stream",
-  "author": "@waynecodez",
-  "version": "0.0.26",
-  "proxy": "http://localhost:7000",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.es.js",
-  "types": "@types/index.d.ts",
-  "scripts": {
-    "start": "rtc serve",
-    "start:client": "react-scripts start",
-    "serve": "node index.js",
-    "dev": "nodemon index.js",
-    "prettier:check": "prettier --check \"**/*.+(ts|tsx|js|jsx|json|css|md)\"",
-    "prettier:fix": "prettier --write \"**/*.+(ts|tsx|js|jsx|json|css|md)\"",
-    "prepare": "husky install",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "docker:up": "docker-compose up --force-recreate -V",
-    "docker:di:tag": "docker tag react-video-image mrwaynerp/react-video",
-    "docker:di:push": "docker push mrwaynerp/react-video",
-    "docker:splash": "npm run build && docker-compose build && npm run docker:di:tag && npm run docker:di:push",
-    "build:package": "vite build && cp -v index.js ./dist && mv -v ./dist/index.js ./dist/rvs.js"
-  },
-  "dependencies": {
-    "chalk": "^5.2.0",
-    "cors": "^2.8.5",
-    "esbuild": "^0.17.19",
-    "eventemitter3": "^5.0.0",
-    "express": "^4.18.2",
-    "nodemon": "^2.0.20",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.1",
-    "react-scripts": "5.0.1",
-    "socket.io": "^4.6.0",
-    "socket.io-client": "^4.6.0",
-    "typescript": "^4.9.5",
-    "vite": "^4.3.8",
-    "web-vitals": "^2.1.4",
-    "webrtc-adapter": "^8.2.0"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.12",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "eslint": "^8.38.0",
-    "husky": "^8.0.3",
-    "prettier": "^2.8.7"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "type": "module",
-  "license": "MIT"
+	"name": "@waynecodez/rtc-stream",
+	"description": "A module that simplifies the usage of WebRTC and Websocket signaling",
+	"version": "0.0.1",
+	"proxy": "http://localhost:7000",
+	"main": "dist/index.cjs.js",
+	"module": "dist/index.es.js",
+	"types": "@types/index.d.ts",
+	"author": {
+		"name": "Dwayne Puranda",
+		"email": "wayne@iplayulisten.com"
+	},
+	"scripts": {
+		"start": "rtc serve",
+		"start:client": "react-scripts start",
+		"serve": "node index.js",
+		"dev": "nodemon index.js",
+		"prettier:check": "prettier --check \"**/*.+(ts|tsx|js|jsx|json|css|md)\"",
+		"prettier:fix": "prettier --write \"**/*.+(ts|tsx|js|jsx|json|css|md)\"",
+		"prepare": "husky install",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject",
+		"docker:up": "docker-compose up --force-recreate -V",
+		"docker:di:tag": "docker tag react-video-image mrwaynerp/react-video",
+		"docker:di:push": "docker push mrwaynerp/react-video",
+		"docker:splash": "npm run build && docker-compose build && npm run docker:di:tag && npm run docker:di:push",
+		"build:package": "vite build && cp -v index.js ./dist && mv -v ./dist/index.js ./dist/rvs.js",
+		"watch:package": "vite build -w",
+		"release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
+	},
+	"dependencies": {
+		"chalk": "^5.2.0",
+		"cors": "^2.8.5",
+		"esbuild": "^0.17.19",
+		"eventemitter3": "^5.0.0",
+		"express": "^4.18.2",
+		"nodemon": "^2.0.20",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.8.1",
+		"react-scripts": "5.0.1",
+		"socket.io": "^4.6.0",
+		"socket.io-client": "^4.6.0",
+		"typescript": "^4.9.5",
+		"vite": "^4.3.8",
+		"web-vitals": "^2.1.4",
+		"webrtc-adapter": "^8.2.0"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^5.16.5",
+		"@testing-library/react": "^13.4.0",
+		"@testing-library/user-event": "^13.5.0",
+		"@types/jest": "^27.5.2",
+		"@types/node": "^16.18.12",
+		"@types/react": "^18.0.28",
+		"@types/react-dom": "^18.0.11",
+		"eslint": "^8.38.0",
+		"husky": "^8.0.3",
+		"prettier": "^2.8.7",
+		"standard-version": "^9.5.0"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"type": "module",
+	"license": "MIT"
 }

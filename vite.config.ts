@@ -8,7 +8,7 @@ export default defineConfig({
     copyPublicDir: false,
     lib: {
       formats: ["es", "cjs"],
-      entry: path.resolve("./src/modules/WRTC-Stream.ts"),
+      entry: path.resolve("./src/module/RTCModule.ts"),
       fileName: (ext) => `index.${ext}.js`,
     },
     rollupOptions: {

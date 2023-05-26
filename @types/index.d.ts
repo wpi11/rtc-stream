@@ -1,28 +1,15 @@
-interface StreamServiceConfig {
-  /**
-   * Socket.io instance
-   */
-  socket: object;
-  /**
-   * WebRTC ICE configuration
-   */
-  iceConfig: object;
-  /**
-   * StreamService logging
-   */
-  logging?: {
-    log: boolean;
-    warn: boolean;
-    error: boolean;
-  };
-}
+declare type ManagerOptions = import("socket.io-client").ManagerOptions;
 
-declare module "@waynecodez/wrtc-stream" {
+declare module "@waynecodez/rtc-stream" {
   export default class StreamService {
     /**
      * StreamService module abstracts WebRTC / Socket.io peer connections
      */
-    constructor(config: StreamServiceConfig);
+    constructor(config: StreamServiceType);
+    /**
+     * RTC module setup method
+     */
+    setup: (config: { name: string; gridId: string }) => void;
     /**
      * socket.io `on` event listener
      */
@@ -40,12 +27,32 @@ declare module "@waynecodez/wrtc-stream" {
     leaveRoom: (room: string) => void;
 
     sendStreamReady: () => void;
-    getMyStream: (config: {
-      name: string;
-      gridId: string;
-    }) => Promise<MediaStream>;
+    getMyStream: () => Promise<MediaStream>;
 
     startListeners: () => void;
     stopListeners: () => void;
   }
+}
+
+interface StreamServiceType {
+  /**
+   * Server path uri
+   */
+  path: string;
+  /**
+   * Socket.io config override
+   */
+  ioOptions?: Partial<ManagerOptions>;
+  /**
+   * WebRTC ICE configuration
+   */
+  iceConfig: RTCConfiguration;
+  /**
+   * StreamService logging
+   */
+  logging?: {
+    log: boolean;
+    warn: boolean;
+    error: boolean;
+  };
 }
