@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/@waynecodez/rtc-stream/compare/v0.1.1...v0.1.2) (2023-05-27)
+
+
+### Bug Fixes
+
+* re-commit changed files ([f949b0a](https://github.com/@waynecodez/rtc-stream/commitsf949b0a48b18f906ca37a109581dd69c4fc0a6d0))
+* removes /dist folder from git tracking ([02042c7](https://github.com/@waynecodez/rtc-stream/commits02042c7ebedd0a58292d7f6295a1e5bf7dc62f01))
+
+
+### Chores
+
+* clean up and add comments ([abf1188](https://github.com/@waynecodez/rtc-stream/commitsabf118805c50f45fd07f2bcfd20a4549fddd6a15))
+
 ### [0.1.1](https://github.com/@waynecodez/rtc-stream/compare/v0.1.0...v0.1.1) (2023-05-26)
 
 
