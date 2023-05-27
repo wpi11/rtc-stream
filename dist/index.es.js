@@ -14,7 +14,12 @@ const d = ({ id: a }) => {
   error: !0
 }, _ = (a) => h(window.location.host, { ...l, ...a });
 class f extends c {
-  constructor({ path: t = window.location.host, ioOptions: i, iceConfig: r, logging: o = m }) {
+  constructor({
+    path: t = window.location.host,
+    ioOptions: i,
+    iceConfig: r,
+    logging: o = m
+  }) {
     super(), this._peers = {}, this._socketEvents = {
       log: (e) => {
         this.log.apply(console, e);
@@ -43,18 +48,25 @@ class f extends c {
         }
         switch (e.type) {
           case "stream-ready":
-            this._connectPeer(s), this.log("client -> stream is ready, creating peer, adding stream, and making offer:", {
-              myId: this._myId,
-              theirId: s,
-              streams: this._streams,
-              connections: this._peers
-            });
+            this._connectPeer(s), this.log(
+              "client -> stream is ready, creating peer, adding stream, and making offer:",
+              {
+                myId: this._myId,
+                theirId: s,
+                streams: this._streams,
+                connections: this._peers
+              }
+            );
             return;
           case "offer":
-            this._peers[s] || this._connectPeer(s), this._peers[s].setRemoteDescription(new RTCSessionDescription(e.sdp)), this._rtcEvents.makeAnswer(s);
+            this._peers[s] || this._connectPeer(s), this._peers[s].setRemoteDescription(
+              new RTCSessionDescription(e.sdp)
+            ), this._rtcEvents.makeAnswer(s);
             return;
           case "answer":
-            this._peers[s].setRemoteDescription(new RTCSessionDescription(e.sdp));
+            this._peers[s].setRemoteDescription(
+              new RTCSessionDescription(e.sdp)
+            );
             return;
           case "candidate":
             if (!e?.candidate)
@@ -75,10 +87,16 @@ class f extends c {
       }
     }, this._rtcEvents = {
       makeOffer: (e) => {
-        this.log("Making offer:", { peer: this._peers[e] }), this._peers[e].createOffer().then(this._rtcEvents.sendLocalDescription.bind(this, e), this._rtcEvents.createOfferError);
+        this.log("Making offer:", { peer: this._peers[e] }), this._peers[e].createOffer().then(
+          this._rtcEvents.sendLocalDescription.bind(this, e),
+          this._rtcEvents.createOfferError
+        );
       },
       makeAnswer: (e) => {
-        this.log("Sending answer:", { peer: this._peers[e] }), this._peers[e].createAnswer().then(this._rtcEvents.sendLocalDescription.bind(this, e), this._rtcEvents.sdpError);
+        this.log("Sending answer:", { peer: this._peers[e] }), this._peers[e].createAnswer().then(
+          this._rtcEvents.sendLocalDescription.bind(this, e),
+          this._rtcEvents.sdpError
+        );
       },
       sendLocalDescription: async (e, s) => {
         try {
@@ -150,9 +168,13 @@ class f extends c {
       if (window ? r = document.getElementById(i) : console.log("Note: window object is not detected."), !r && window)
         throw new Error(`Element with id '${i}' is required.`);
       if (!t)
-        throw new Error(`"name" is required in "rtc.setup({ name: 'name', gridId: 'id' })".`);
+        throw new Error(
+          `"name" is required in "rtc.setup({ name: 'name', gridId: 'id' })".`
+        );
       if (!i)
-        throw new Error(`"gridId" is required in "rtc.setup({ name: 'name', gridId: 'id' })".`);
+        throw new Error(
+          `"gridId" is required in "rtc.setup({ name: 'name', gridId: 'id' })".`
+        );
       this.user.name = t, this.isSetup = !0, this.log("client > rtc setup successful!");
     } catch (o) {
       this.error("rtc setup failed.", o.message);
@@ -161,7 +183,9 @@ class f extends c {
   // get stream ready
   async getMyStream() {
     if (!this.isSetup)
-      throw new Error('RTC module is not setup. Have you called "rtc.setup()"?');
+      throw new Error(
+        'RTC module is not setup. Have you called "rtc.setup()"?'
+      );
     return navigator.mediaDevices.getUserMedia({ audio: !1, video: !0 }).then((t) => (this.log("client > media stream ready."), this._localStream = t));
   }
   // initialize listeners
@@ -178,7 +202,18 @@ class f extends c {
         this.warn("You're already connected with:", t);
         return;
       }
-      this._peers[t] = new RTCPeerConnection(this.iceConfig), this._peers[t].onicecandidate = this._rtcEvents.iceCandidate.bind(this, t), this._peers[t].ontrack = this._rtcEvents.addTrack.bind(this, t), this._peers[t].onremovetrack = this._rtcEvents.removeTrack.bind(this, t), this._peers[t].onconnectionstatechange = this._rtcEvents.stateChange.bind(this, t), this.log("Created RTC Peer for:", { socketId: t, peers: this._peers });
+      this._peers[t] = new RTCPeerConnection(
+        this.iceConfig
+      ), this._peers[t].onicecandidate = this._rtcEvents.iceCandidate.bind(
+        this,
+        t
+      ), this._peers[t].ontrack = this._rtcEvents.addTrack.bind(
+        this,
+        t
+      ), this._peers[t].onremovetrack = this._rtcEvents.removeTrack.bind(
+        this,
+        t
+      ), this._peers[t].onconnectionstatechange = this._rtcEvents.stateChange.bind(this, t), this.log("Created RTC Peer for:", { socketId: t, peers: this._peers });
     } catch (i) {
       this.error("RTC Peer failed: " + i.message), this.emit("error", {
         error: new Error(`RTC Peer failed: ${i.message}`)
